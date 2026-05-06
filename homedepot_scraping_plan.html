@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Depot Scraping Plan — Asad for Jareed</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090b;
+  --surface: #111114;
+  --surface2: #18181b;
+  --border: #27272a;
+  --border2: #3f3f46;
+  --text: #fafafa;
+  --muted: #a1a1aa;
+  --subtle: #3f3f46;
+  --teal: #2dd4bf;
+  --teal-bg: #0d2d2b;
+  --teal-border: #134e4a;
+  --coral: #fb7185;
+  --coral-bg: #2d0d17;
+  --coral-border: #4e1325;
+  --purple: #a78bfa;
+  --purple-bg: #1e1b3a;
+  --purple-border: #3b2e6e;
+  --amber: #fbbf24;
+  --amber-bg: #292210;
+  --green: #4ade80;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Space Grotesk', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: .4;
+}
+
+main { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 60px 24px 80px; }
+
+/* ── HEADER ── */
+header {
+  margin-bottom: 56px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 24px; flex-wrap: wrap;
+}
+.header-left {}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 4px 10px; border-radius: 4px; margin-bottom: 16px;
+}
+.eyebrow span { color: var(--amber); }
+h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700; letter-spacing: -.02em;
+  color: var(--text); line-height: 1.1; margin-bottom: 10px;
+}
+h1 em { color: var(--teal); font-style: normal; }
+.header-desc { font-size: 15px; color: var(--muted); max-width: 480px; }
+.header-meta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.meta-pill {
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 5px 10px; border-radius: 4px;
+}
+.meta-pill svg { flex-shrink: 0; }
+
+/* ── SOURCE BOX ── */
+.source-section { margin-bottom: 40px; }
+.source-box {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 20px 24px;
+  display: flex; align-items: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.source-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, #ff6900, #ff8c00);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 22px;
+}
+.source-info { flex: 1; min-width: 200px; }
+.source-info h2 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+.source-info p { font-size: 13px; color: var(--muted); }
+.bypass-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--amber-bg); border: 1px solid #78490022;
+  border-color: rgba(251,191,36,.2);
+  padding: 8px 14px; border-radius: 8px;
+}
+.bypass-badge svg { color: var(--amber); flex-shrink: 0; }
+.bypass-badge-text { font-size: 12px; line-height: 1.5; }
+.bypass-badge-text strong { color: var(--amber); display: block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 1px; }
+.bypass-badge-text span { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 16px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── TRACKS GRID ── */
+.tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+@media (max-width: 720px) { .tracks { grid-template-columns: 1fr; } }
+
+/* ── TRACK CARD ── */
+.track-card {
+  border-radius: 12px; border: 1px solid;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.track-card.teal { border-color: var(--teal-border); background: var(--teal-bg); }
+.track-card.coral { border-color: var(--coral-border); background: var(--coral-bg); }
+
+.track-header {
+  padding: 16px 20px; display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid;
+}
+.track-card.teal .track-header { border-color: var(--teal-border); background: rgba(45,212,191,.06); }
+.track-card.coral .track-header { border-color: var(--coral-border); background: rgba(251,113,133,.06); }
+
+.track-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  flex-shrink: 0;
+}
+.track-card.teal .track-icon { background: rgba(45,212,191,.15); }
+.track-card.coral .track-icon { background: rgba(251,113,133,.15); }
+.track-header-text h3 { font-size: 15px; font-weight: 600; }
+.track-header-text p { font-size: 12px; color: var(--muted); }
+.track-card.teal .track-header-text h3 { color: var(--teal); }
+.track-card.coral .track-header-text h3 { color: var(--coral); }
+
+/* URL + ENDPOINT blocks */
+.url-block, .endpoint-block {
+  padding: 12px 20px; border-bottom: 1px solid;
+}
+.track-card.teal .url-block,
+.track-card.teal .endpoint-block { border-color: var(--teal-border); }
+.track-card.coral .url-block,
+.track-card.coral .endpoint-block { border-color: var(--coral-border); }
+
+.block-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .12em;
+  text-transform: uppercase; color: #a1a1aa; margin-bottom: 5px;
+  display: flex; align-items: center; gap: 5px;
+}
+.block-label svg { opacity: .6; }
+.code-text {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.7;
+  color: var(--text);
+}
+.track-card.teal .code-text em { color: var(--teal); font-style: normal; }
+.track-card.coral .code-text em { color: var(--coral); font-style: normal; }
+.code-text .method {
+  font-size: 9px; letter-spacing: .06em; text-transform: uppercase;
+  background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 3px;
+  margin-right: 4px; color: var(--muted);
+}
+
+/* Categories */
+.categories-block { flex: 1; }
+.cat-label {
+  padding: 8px 20px; border-bottom: 1px solid;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .1em;
+  text-transform: uppercase; display: flex; align-items: center; gap: 5px;
+}
+.track-card.teal .cat-label { border-color: var(--teal-border); color: var(--teal); }
+.track-card.coral .cat-label { border-color: var(--coral-border); color: var(--coral); }
+.cat-badge {
+  margin-left: auto; font-size: 9px; padding: 1px 6px; border-radius: 10px;
+}
+.track-card.teal .cat-badge { background: rgba(45,212,191,.2); color: var(--teal); }
+.track-card.coral .cat-badge { background: rgba(251,113,133,.2); color: var(--coral); }
+
+.cat-list { padding: 4px 0; }
+.cat-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 20px; gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  transition: background .12s;
+}
+.cat-item:hover { background: rgba(255,255,255,.03); }
+.cat-item:last-child { border-bottom: none; }
+.cat-name { font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.cat-name svg { color: var(--muted); flex-shrink: 0; }
+.cat-nav {
+  font-family: var(--mono); font-size: 10px; color: #6ee7b7;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── FIELDS SECTION ── */
+.fields-section { margin-bottom: 40px; }
+.fields-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 720px) { .fields-grid { grid-template-columns: 1fr; } }
+
+.field-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden;
+}
+.field-card-header {
+  padding: 10px 14px; background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+}
+.field-card-header svg { color: var(--muted); }
+.field-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px; font-family: var(--mono); font-size: 11px; color: #d4d4d8;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+}
+.field-item:last-child { border-bottom: none; }
+.field-item::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--border2); flex-shrink: 0;
+}
+.field-type {
+  margin-left: auto; font-size: 9px; color: #71717a;
+}
+
+/* ── PAGINATION NOTE ── */
+.pag-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 12px 16px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 40px;
+}
+.pag-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  padding: 3px 8px; background: var(--surface2); border-radius: 4px;
+}
+.pag-item svg { color: var(--muted); }
+.pag-divider { color: var(--border2); }
+
+/* ── OUTPUT ── */
+.output-card {
+  background: var(--purple-bg); border: 1px solid var(--purple-border);
+  border-radius: 12px; overflow: hidden;
+}
+.output-header {
+  padding: 16px 24px; border-bottom: 1px solid var(--purple-border);
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(167,139,250,.06);
+}
+.output-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(167,139,250,.15);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.output-header-text h3 { font-size: 15px; font-weight: 600; color: var(--purple); }
+.output-header-text p { font-size: 12px; color: var(--muted); }
+.output-body { padding: 20px 24px; display: flex; gap: 16px; flex-wrap: wrap; }
+.output-sheet {
+  flex: 1; min-width: 220px; background: rgba(167,139,250,.06);
+  border: 1px solid var(--purple-border); border-radius: 8px; padding: 14px 16px;
+}
+.output-sheet-num {
+  font-family: var(--mono); font-size: 9px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--purple); margin-bottom: 6px;
+  opacity: .7;
+}
+.output-sheet-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.output-sheet-desc { font-size: 12px; color: var(--muted); }
+.output-sheet-count {
+  display: inline-flex; margin-top: 8px;
+  font-family: var(--mono); font-size: 11px;
+  background: rgba(167,139,250,.15); color: var(--purple);
+  padding: 2px 8px; border-radius: 4px;
+}
+.output-join {
+  width: 100%; padding: 12px 16px; border-top: 1px solid var(--purple-border);
+  margin-top: 4px; font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+}
+.output-join svg { color: var(--purple); flex-shrink: 0; }
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+}
+footer p { font-size: 12px; color: var(--muted); }
+footer .footer-right { display: flex; gap: 8px; }
+.footer-tag {
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 3px 8px; border-radius: 4px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+header       { animation: fadeUp .5s ease both; }
+.source-section { animation: fadeUp .5s ease .1s both; }
+.tracks      { animation: fadeUp .5s ease .18s both; }
+.fields-section { animation: fadeUp .5s ease .26s both; }
+.pag-row     { animation: fadeUp .5s ease .32s both; }
+.output-card { animation: fadeUp .5s ease .38s both; }
+
+/* ── PURPOSE SECTION ── */
+.purpose-section { margin-bottom: 40px; }
+.purpose-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 24px;
+  display: flex; gap: 20px; align-items: flex-start;
+}
+.purpose-icon {
+  font-size: 28px; flex-shrink: 0; margin-top: 2px;
+  width: 52px; height: 52px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.purpose-body { flex: 1; }
+.purpose-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+}
+.purpose-title {
+  font-size: 18px; font-weight: 700; color: var(--text);
+  letter-spacing: -.01em; margin-bottom: 10px; line-height: 1.3;
+}
+.purpose-text {
+  font-size: 14px; color: #a1a1aa; line-height: 1.75; margin-bottom: 16px;
+}
+.purpose-text strong { color: var(--text); }
+.purpose-link {
+  color: var(--teal); text-decoration: none; border-bottom: 1px solid rgba(45,212,191,.3);
+  transition: border-color .15s;
+}
+.purpose-link:hover { border-color: var(--teal); }
+.purpose-bullets { display: flex; flex-direction: column; gap: 8px; }
+.purpose-bullet {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: #a1a1aa; line-height: 1.5;
+}
+.purpose-bullet strong { color: var(--text); }
+.pbullet-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+}
+.pbullet-dot.red   { background: #fb7185; box-shadow: 0 0 6px #fb718566; }
+.pbullet-dot.amber { background: #fbbf24; box-shadow: 0 0 6px #fbbf2466; }
+.pbullet-dot.green { background: #4ade80; box-shadow: 0 0 6px #4ade8066; }
+
+/* ── CLICKABLE CAT ITEMS ── */
+.cat-item { cursor: pointer; }
+.cat-item a {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; text-decoration: none; color: inherit;
+}
+.cat-item a:hover .cat-name { color: var(--teal); }
+.track-card.coral .cat-item a:hover .cat-name { color: var(--coral); }
+.cat-link-icon { opacity: 0; transition: opacity .15s; color: var(--muted); flex-shrink: 0; }
+.cat-item:hover .cat-link-icon { opacity: 1; }
+
+</style>
+</head>
+<body>
+<main>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="eyebrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Prepared for <span>Jareed</span> &nbsp;·&nbsp; Fix.com / HD Catalog Gap Analysis
+    </div>
+    <h1>homedepot.com<br><em>Scraping Plan</em></h1>
+    <p class="header-desc">Full catalog extraction — finished goods &amp; retail parts — to identify missing models and parts on our repair site.</p>
+  </div>
+  <div class="header-meta">
+    <div class="meta-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      homedepot.com
+    </div>
+    <div class="meta-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      2 tracks · 1 site
+    </div>
+    <div class="meta-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      ~26,000+ rows output
+    </div>
+
+  </div>
+</header>
+
+
+<!-- PURPOSE -->
+<div class="purpose-section">
+  <div class="purpose-card">
+    <div class="purpose-icon">🎯</div>
+    <div class="purpose-body">
+      <div class="purpose-label">Why we're scraping this</div>
+      <h2 class="purpose-title">Gap Analysis — What's Missing on Our Repair Site</h2>
+      <p class="purpose-text">
+        Cross-reference <strong>homedepot.com</strong> against our repair site <a href="https://www.appliancerepair.homedepot.com/" target="_blank" class="purpose-link">appliancerepair.homedepot.com</a> to find what we're missing:
+      </p>
+      <div class="purpose-bullets">
+        <div class="purpose-bullet">
+          <span class="pbullet-dot red"></span>
+          <span><strong>Missing models</strong> — appliances HD sells that have no parts coverage on our site</span>
+        </div>
+        <div class="purpose-bullet">
+          <span class="pbullet-dot amber"></span>
+          <span><strong>Missing parts</strong> — models we cover but where our parts catalog is incomplete</span>
+        </div>
+        <div class="purpose-bullet">
+          <span class="pbullet-dot green"></span>
+          <span><strong>Orphan parts</strong> — parts on our site for models HD no longer sells</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOURCE -->
+<div class="source-section">
+  <div class="section-label">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    Target site
+  </div>
+  <div class="source-box">
+    <div class="source-icon">🏠</div>
+    <div class="source-info">
+      <h2>homedepot.com</h2>
+      <p>Single target — two data types via the same internal GraphQL API</p>
+    </div>
+    <div class="bypass-badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div class="bypass-badge-text">
+        <strong>Anti-bot bypass strategy</strong>
+        <span>Akamai Bot Manager → bypass with<br><b style="color:#fbbf24">curl_cffi</b> impersonate="chrome124" + residential proxy</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRACKS -->
+<div class="section-label">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  Two scraping tracks
+</div>
+<div class="tracks">
+
+  <!-- TRACK A -->
+  <div class="track-card teal">
+    <div class="track-header">
+      <div class="track-icon">📦</div>
+      <div class="track-header-text">
+        <h3>Track A — Finished Goods</h3>
+        <p>Appliance models HD sells (the products)</p>
+      </div>
+    </div>
+
+    <div class="url-block">
+      <div class="block-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        Source URL (browser)
+      </div>
+      <div class="code-text">homedepot.com/b/<em>Appliances-{Category}</em><br>/N-<em>{navParam}</em>?catStyle=ShowProducts</div>
+    </div>
+
+    <div class="endpoint-block">
+      <div class="block-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        GraphQL Endpoint (data source)
+      </div>
+      <div class="code-text">
+        <span class="method">POST</span><em>apionline.homedepot.com</em><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;/federation-gateway/graphql<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;?opname=<em>searchModel</em>
+      </div>
+    </div>
+
+    <div class="categories-block">
+      <div class="cat-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        Categories
+        <span class="cat-badge">19</span>
+      </div>
+      <div class="cat-list">
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Kitchen-Appliance-Packages/N-5yc1vZ2fkpfuj" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 3H8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/></svg>Kitchen appliance packages</span><span class="cat-nav">N-5yc1vZ2fkpfuj</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Refrigerators/N-5yc1vZc3pi" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M9 3v6"/></svg>Refrigerators</span><span class="cat-nav">N-5yc1vZc3pi</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Ranges/N-5yc1vZc3o9" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18v14a1 1 0 01-1 1H4a1 1 0 01-1-1V6zM3 6V4a1 1 0 011-1h16a1 1 0 011 1v2"/></svg>Ranges / stoves</span><span class="cat-nav">N-5yc1vZc3o9</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Dishwashers/N-5yc1vZc3po" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M6 12h12M6 16h8"/></svg>Dishwashers</span><span class="cat-nav">N-5yc1vZc3po</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Microwaves/N-5yc1vZc3ok" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 6h.01M12 10h.01"/></svg>Microwaves</span><span class="cat-nav">N-5yc1vZc3ok</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Microwaves-Over-the-Range-Microwaves/N-5yc1vZc3pa" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 6h6"/></svg>Over-the-range microwaves</span><span class="cat-nav">N-5yc1vZc3pa</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Wall-Ovens/N-5yc1vZc3nq" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Wall ovens</span><span class="cat-nav">N-5yc1vZc3nq</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Cooktops/N-5yc1vZc3oq" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12v4c0 2.2 4.5 4 10 4s10-1.8 10-4v-4"/></svg>Cooktops</span><span class="cat-nav">N-5yc1vZc3oq</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Range-Hoods/N-5yc1vZc3nk" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2h6l2 4H7L9 2zM3 6h18v2H3zM5 8v12a1 1 0 001 1h12a1 1 0 001-1V8"/></svg>Range hoods</span><span class="cat-nav">N-5yc1vZc3nk</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Freezers/N-5yc1vZc3p2" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M12 3v6"/></svg>Freezers</span><span class="cat-nav">N-5yc1vZc3p2</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Washers-Dryers-Washing-Machines/N-5yc1vZc3ov" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zM4 10h16"/></svg>Washers</span><span class="cat-nav">N-5yc1vZc3ov</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Washers-Dryers-Dryers/N-5yc1vZc3p3" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Dryers</span><span class="cat-nav">N-5yc1vZc3p3</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Washers-Dryers-Washer-Dryer-Sets/N-5yc1vZ2fkpgvt" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h3M16 3h3a2 2 0 012 2v14a2 2 0 01-2 2h-3M12 3v18"/></svg>Washer &amp; dryer sets</span><span class="cat-nav">N-5yc1vZ2fkpgvt</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Washers-Dryers/Stackable/N-5yc1vZc3olZ1z17ic0" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>Stackable washers &amp; dryers</span><span class="cat-nav">N-5yc1vZc3olZ…</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Beverage-Coolers/N-5yc1vZc3o4" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H4a1 1 0 00-1 1v14a2 2 0 002 2h14a2 2 0 002-2V4a1 1 0 00-1-1h-4M8 3a1 1 0 011-1h6a1 1 0 011 1v3H8V3z"/></svg>Beverage coolers</span><span class="cat-nav">N-5yc1vZc3o4</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Mini-Fridges/N-5yc1vZc4mo" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 10h14"/></svg>Mini fridges</span><span class="cat-nav">N-5yc1vZc4mo</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Floor-Care-Vacuums/N-5yc1vZbv1z" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Floor care &amp; vacuums</span><span class="cat-nav">N-5yc1vZbv1z</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Heating-Venting-Cooling-Air-Conditioners/N-5yc1vZc4me" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 8h10M9 12h10M9 16h10M4.99 8H5M4.99 12H5M4.99 16H5"/></svg>Air conditioners</span><span class="cat-nav">N-5yc1vZc4me</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Small-Kitchen-Appliances/N-5yc1vZbv48" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg>Small kitchen appliances</span><span class="cat-nav">N-5yc1vZbv48</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACK B -->
+  <div class="track-card coral">
+    <div class="track-header">
+      <div class="track-icon">🔧</div>
+      <div class="track-header-text">
+        <h3>Track B — Retail Parts</h3>
+        <p>Parts HD stocks and ships directly</p>
+      </div>
+    </div>
+
+    <div class="url-block">
+      <div class="block-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        Source URL (browser)
+      </div>
+      <div class="code-text">homedepot.com/b/<em>Appliances-</em><br><em>Appliance-Parts</em>/N-5yc1vZc35v</div>
+    </div>
+
+    <div class="endpoint-block">
+      <div class="block-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        GraphQL Endpoint (same as Track A)
+      </div>
+      <div class="code-text">
+        <span class="method">POST</span><em>apionline.homedepot.com</em><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;/federation-gateway/graphql<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;?opname=<em>searchModel</em>
+      </div>
+    </div>
+
+    <div class="categories-block">
+      <div class="cat-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        Sub-categories
+        <span class="cat-badge">14</span>
+      </div>
+      <div class="cat-list">
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Appliance parts (all)</span><span class="cat-nav">N-5yc1vZc35v</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Dryer parts</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12s2-4 7-4 7 4 7 4-2 4-7 4-7-4-7-4z"/></svg>Dryer vents</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Dryer heating elements</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 000 16M12 2a8 8 0 010 16M12 2v16M4 6h16M3 10h18"/></svg>Refrigerator water filters</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h8l1 6H7L8 6zM7 12l-1 4a1 1 0 001 1h10a1 1 0 001-1l-1-4"/></svg>Refrigerator ice makers</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M2 9h20M12 3v6"/></svg>Freezer parts</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Oven heating elements</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Garbage disposal parts</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 6h.01M12 10h.01"/></svg>Microwave parts</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01"/></svg>Dishwasher parts</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zM4 10h16"/></svg>Washing machine parts &amp; hoses</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v14a2 2 0 002 2h3M16 3h3a2 2 0 012 2v14a2 2 0 01-2 2h-3M12 3v18"/></svg>Washer/dryer pedestals &amp; stacking kits</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+        <div class="cat-item"><a href="https://www.homedepot.com/b/Appliances-Appliance-Parts/N-5yc1vZc35v" target="_blank"><span class="cat-name"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1010 16H2m15.73-8.27A2 2 0 1119 12H2"/></svg>Air filters &amp; portable fan parts</span><span class="cat-nav">sub-category</span><svg class="cat-link-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FIELDS -->
+<div class="fields-section">
+  <div class="section-label">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    All fields collected per product
+  </div>
+  <div class="fields-grid">
+    <div class="field-card">
+      <div class="field-card-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20"/></svg>
+        Identity
+      </div>
+      <div class="field-item">item_id <span class="field-type">Internet #</span></div>
+      <div class="field-item">model_number <span class="field-type">key join field</span></div>
+      <div class="field-item">manufacturer_part_number</div>
+      <div class="field-item">hd_sku · store_sku</div>
+      <div class="field-item">upc · gtin</div>
+      <div class="field-item">brand_name</div>
+      <div class="field-item">product_label <span class="field-type">full name</span></div>
+      <div class="field-item">canonical_url</div>
+      <div class="field-item">category · subcategory</div>
+      <div class="field-item">breadcrumbs[]</div>
+      <div class="field-item">description</div>
+      <div class="field-item">bullet_points[]</div>
+      <div class="field-item">color_finish_family</div>
+      <div class="field-item">appliance_series</div>
+      <div class="field-item">specifications{}</div>
+      <div class="field-item">compatible_models[]</div>
+    </div>
+    <div class="field-card">
+      <div class="field-card-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Commerce
+      </div>
+      <div class="field-item">price</div>
+      <div class="field-item">list_price <span class="field-type">was price</span></div>
+      <div class="field-item">discount_pct</div>
+      <div class="field-item">in_stock <span class="field-type">bool</span></div>
+      <div class="field-item">qty_available</div>
+      <div class="field-item">discontinued <span class="field-type">bool</span></div>
+      <div class="field-item">fulfillment_type</div>
+      <div class="field-item">ship_to_store <span class="field-type">bool</span></div>
+      <div class="field-item">pickup_available <span class="field-type">bool</span></div>
+      <div class="field-item">delivery_available <span class="field-type">bool</span></div>
+      <div class="field-item">subscription_eligible</div>
+      <div class="field-item">return_policy_days</div>
+      <div class="field-item">warranty_info</div>
+      <div class="field-item">oem_part <span class="field-type">bool</span></div>
+      <div class="field-item">special_buy <span class="field-type">bool</span></div>
+      <div class="field-item">store_id</div>
+    </div>
+    <div class="field-card">
+      <div class="field-card-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Media &amp; Ratings
+      </div>
+      <div class="field-item">primary_image_url</div>
+      <div class="field-item">thumbnail_url</div>
+      <div class="field-item">alt_image_urls[]</div>
+      <div class="field-item">video_urls[]</div>
+      <div class="field-item">avg_rating</div>
+      <div class="field-item">total_reviews</div>
+      <div class="field-item">rating_breakdown{}</div>
+      <div class="field-item">recommended_pct</div>
+      <div class="field-item">favorite_count</div>
+      <div class="field-item">questions_count</div>
+      <div class="field-item">related_products[]</div>
+      <div class="field-item">frequently_bought[]</div>
+      <div class="field-item">badges[] <span class="field-type">best seller…</span></div>
+      <div class="field-item">eco_actions[]</div>
+      <div class="field-item">scraped_at <span class="field-type">timestamp</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGINATION -->
+<div class="pag-row">
+  <div class="pag-item">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    24 products / page
+  </div>
+  <span class="pag-divider">·</span>
+  <div class="pag-item">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+    startIndex offset pagination
+  </div>
+  <span class="pag-divider">·</span>
+  <div class="pag-item">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    ~1.5 s delay per request
+  </div>
+  <span class="pag-divider">·</span>
+  <div class="pag-item">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    curl_cffi · impersonate="chrome124"
+  </div>
+</div>
+
+<!-- OUTPUT -->
+<div class="section-label">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  Output
+</div>
+<div class="output-card">
+  <div class="output-header">
+    <div class="output-icon">📊</div>
+    <div class="output-header-text">
+      <h3>homedepot_catalog.csv</h3>
+      <p>Two sheets — ready to run gap analysis against the repair site</p>
+    </div>
+  </div>
+  <div class="output-body">
+    <div class="output-sheet">
+      <div class="output-sheet-num">Sheet 1</div>
+      <div class="output-sheet-name">Finished Goods</div>
+      <div class="output-sheet-desc">All appliance models HD sells. Primary source for missing model detection.</div>
+      <div class="output-sheet-count">~5,000–6,000 rows</div>
+    </div>
+    <div class="output-sheet">
+      <div class="output-sheet-num">Sheet 2</div>
+      <div class="output-sheet-name">Retail Parts</div>
+      <div class="output-sheet-desc">All parts HD stocks. Cross-reference against repair site part coverage.</div>
+      <div class="output-sheet-count">~20,000+ rows</div>
+    </div>
+  </div>
+  <div class="output-join">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+    Join key: <strong style="color:#a78bfa;margin:0 4px">model_number</strong> ↔ your appliancerepair.homedepot.com catalog to find missing models &amp; parts
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Prepared by Asad · Fix.com / HD catalog gap analysis · homedepot.com</p>
+  <div class="footer-right">
+    <span class="footer-tag">Track A: 19 categories</span>
+    <span class="footer-tag">Track B: 14 categories</span>
+    <span class="footer-tag">45+ fields per row</span>
+  </div>
+</footer>
+
+</main>
+</body>
+</html>
