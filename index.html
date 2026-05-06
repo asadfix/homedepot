@@ -379,6 +379,65 @@ header       { animation: fadeUp .5s ease both; }
 .cat-link-icon { opacity: 0; transition: opacity .15s; color: var(--muted); flex-shrink: 0; }
 .cat-item:hover .cat-link-icon { opacity: 1; }
 
+
+/* ── FEEDBACK ── */
+.feedback-section { margin-bottom: 40px; }
+.feedback-card {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 12px; overflow: hidden;
+}
+.feedback-intro {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 24px; border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.feedback-intro-icon { font-size: 22px; flex-shrink: 0; }
+.feedback-intro-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.feedback-intro-sub { font-size: 12px; color: var(--muted); }
+
+.feedback-form { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:600px){ .form-row { grid-template-columns: 1fr; } }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.form-input {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 7px; padding: 9px 12px;
+  font-family: var(--sans); font-size: 13px; color: var(--text);
+  outline: none; transition: border-color .15s;
+  width: 100%;
+}
+.form-input:focus { border-color: var(--teal); }
+.form-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.form-textarea { resize: vertical; min-height: 90px; font-family: var(--sans); line-height: 1.6; }
+.form-input::placeholder { color: var(--subtle); }
+option { background: #18181b; }
+
+.form-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.submit-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal); color: #0a0a0a;
+  border: none; border-radius: 7px; padding: 10px 20px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: opacity .15s, transform .1s;
+}
+.submit-btn:hover { opacity: .9; transform: translateY(-1px); }
+.submit-btn:active { transform: scale(.98); }
+.submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.form-note { font-size: 11px; color: var(--muted); }
+
+.fb-success {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: rgba(74,222,128,.1);
+  border: 1px solid rgba(74,222,128,.3); border-radius: 7px;
+  font-size: 13px; color: #4ade80;
+}
+.fb-success svg { flex-shrink: 0; }
+.hidden { display: none !important; }
+
 </style>
 </head>
 <body>
@@ -717,6 +776,57 @@ header       { animation: fadeUp .5s ease both; }
   </div>
 </div>
 
+
+<!-- FEEDBACK -->
+<div class="feedback-section">
+  <div class="section-label">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Feedback &amp; Suggestions
+  </div>
+  <div class="feedback-card">
+    <div class="feedback-intro">
+      <div class="feedback-intro-icon">💬</div>
+      <div>
+        <div class="feedback-intro-title">Got a suggestion or correction?</div>
+        <div class="feedback-intro-sub">Drop a note — categories to add, fields to change, anything at all.</div>
+      </div>
+    </div>
+    <form class="feedback-form" onsubmit="sendFeedback(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Your name</label>
+          <input class="form-input" type="text" id="fb-name" placeholder="e.g. Jareed" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-input form-select" id="fb-type">
+            <option value="Suggestion">Suggestion</option>
+            <option value="Correction">Correction</option>
+            <option value="Missing category">Missing category</option>
+            <option value="Question">Question</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your feedback</label>
+        <textarea class="form-input form-textarea" id="fb-msg" placeholder="What would you like to change or add?" required></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="submit-btn" id="fb-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send to Asad
+        </button>
+        <span class="form-note">Sends directly to asad.ikram53@gmail.com</span>
+      </div>
+      <div class="fb-success hidden" id="fb-success">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Sent! Asad will review your feedback.
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <p>Prepared by Asad · Fix.com / HD catalog gap analysis · homedepot.com</p>
@@ -728,5 +838,34 @@ header       { animation: fadeUp .5s ease both; }
 </footer>
 
 </main>
+
+<script>
+function sendFeedback(e) {
+  e.preventDefault();
+  const name = document.getElementById('fb-name').value.trim();
+  const type = document.getElementById('fb-type').value;
+  const msg  = document.getElementById('fb-msg').value.trim();
+  const btn  = document.getElementById('fb-btn');
+
+  const subject = encodeURIComponent('[HD Scraping Plan] ' + type + ' from ' + name);
+  const body    = encodeURIComponent(
+    'Name: ' + name + '\n' +
+    'Type: ' + type + '\n\n' +
+    'Feedback:\n' + msg + '\n\n' +
+    '— Sent from HD Scraping Plan page'
+  );
+
+  btn.disabled = true;
+  window.location.href = 'mailto:asad.ikram53@gmail.com?subject=' + subject + '&body=' + body;
+
+  setTimeout(() => {
+    document.getElementById('fb-success').classList.remove('hidden');
+    document.getElementById('fb-name').value = '';
+    document.getElementById('fb-msg').value = '';
+    btn.disabled = false;
+  }, 800);
+}
+</script>
+
 </body>
 </html>
